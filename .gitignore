@@ -1,0 +1,11 @@
+.vscode/*
+package-lock.json
+dist/*
+OutApp/*
+1.avi
+node_modules
+renderer/react
+extra_res/bin/M*
+extra_res/db/stream_name
+extra_res/db/medicam_config.json
+extra_res/db/live_events

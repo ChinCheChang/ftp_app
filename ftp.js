@@ -11,61 +11,61 @@ var FtpObj = undefined
 var localList = {}
 
 const ftp = {
-  // init: function(btName) {
-  //   return new Promise((resolve, reject) => {
-  //     if (FtpObj === undefined) {
-  //       controller.getNonce()
-  //         .then(data => {        
-  //           if (data) {
-  //             let key = ['@', 'N', 'e', 'w', 'K', 'e', 'n', '_', '1', '6', '9', '9', '9', '5', '9', '9'];
-  //             let iv = ['@', 'M', 'e', 'd', 'i', 'C', 'a', 'm', '_', 'F', 'M', '-', '1', '0', '0', '#'];
+  init: function(btName) {
+    return new Promise((resolve, reject) => {
+      if (FtpObj === undefined) {
+        controller.getNonce()
+          .then(data => {        
+            if (data) {
+              let key = ['@', 'N', 'e', 'w', 'K', 'e', 'n', '_', '1', '6', '9', '9', '9', '5', '9', '9'];
+              let iv = ['@', 'M', 'e', 'd', 'i', 'C', 'a', 'm', '_', 'F', 'M', '-', '1', '0', '0', '#'];
         
-  //             let byteKey = key.map((value) => { return aesjs.utils.utf8.toBytes(value)[0] })
-  //             let byteIv = iv.map((value) => { return aesjs.utils.utf8.toBytes(value)[0] })
-  //             let encryptedBytes = aesjs.utils.hex.toBytes(data)
-  //             let aesCbc = new aesjs.ModeOfOperation.cbc(byteKey, byteIv);
-  //             let decryptedBytes = aesCbc.decrypt(encryptedBytes);
-  //             let nonce = aesjs.utils.hex.fromBytes(decryptedBytes);
-  //             let pw = ''
-  //             if (nonce != null && nonce.length == 32) {
-  //               pw = nonce.substring(24).toUpperCase();
-  //             }
+              let byteKey = key.map((value) => { return aesjs.utils.utf8.toBytes(value)[0] })
+              let byteIv = iv.map((value) => { return aesjs.utils.utf8.toBytes(value)[0] })
+              let encryptedBytes = aesjs.utils.hex.toBytes(data)
+              let aesCbc = new aesjs.ModeOfOperation.cbc(byteKey, byteIv);
+              let decryptedBytes = aesCbc.decrypt(encryptedBytes);
+              let nonce = aesjs.utils.hex.fromBytes(decryptedBytes);
+              let pw = ''
+              if (nonce != null && nonce.length == 32) {
+                pw = nonce.substring(24).toUpperCase();
+              }
 
-  //             FtpObj = new jsftp({
-  //               host: config.getCamera().ip,
-  //               user: 'MediCam',
-  //               pass: pw,
-  //               debugMode: true,
-  //               useList: true
-  //             })
+              FtpObj = new jsftp({
+                host: config.getCamera().ip,
+                user: 'MediCam',
+                pass: pw,
+                debugMode: true,
+                useList: true
+              })
               
-  //             console.log('FTP_init password:', pw)
-  //             return FtpObj
-  //           }			
-  //         })
-  //         .then((FtpObj) => {
-  //           return fsPromises.readdir(`${homedir}/camera`)
-  //             .then(items => {
-  //               if (items.indexOf(btName) === -1) {
-  //                 fsPromises.mkdir(`${homedir}/camera/${btName}`)
-  //                   .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/jpg`)})
-  //                   .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/thumb`)})
-  //                   .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/video`)})
-  //                   .then(data => { resolve(true) })
-  //                   .catch(err => {console.log('FTP: failed creating files', err)})
-  //               } else {
-  //                 this.checkLocalFiles(btName)
-  //                 resolve(true)
-  //               }         
-  //             })
-  //             .catch(err => err)
-  //         })
-  //         .catch(err => {console.log('FTP: failed', err)})
-  //     } else {
-  //       resolve(true)
-  //     }
-  //   })
-  // },
+              console.log('FTP_init password:', pw)
+              return FtpObj
+            }			
+          })
+          .then((FtpObj) => {
+            return fsPromises.readdir(`${homedir}/camera`)
+              .then(items => {
+                if (items.indexOf(btName) === -1) {
+                  fsPromises.mkdir(`${homedir}/camera/${btName}`)
+                    .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/jpg`)})
+                    .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/thumb`)})
+                    .then(data => {fsPromises.mkdir(`${homedir}/camera/${btName}/video`)})
+                    .then(data => { resolve(true) })
+                    .catch(err => {console.log('FTP: failed creating files', err)})
+                } else {
+                  this.checkLocalFiles(btName)
+                  resolve(true)
+                }         
+              })
+              .catch(err => err)
+          })
+          .catch(err => {console.log('FTP: failed', err)})
+      } else {
+        resolve(true)
+      }
+    })
+  },
   listAll: function(args) {
     return new Promise ((resolve, reject) => {
       FtpObj.ls(args[0], (err, res) => {

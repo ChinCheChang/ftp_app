@@ -21,9 +21,9 @@ const ListingParser = require("parse-listing");
 const once = require("once");
 const nfc = require("unorm").nfc;
 
-const debug = require("./debug")("jsftp:general");
-const dbgCommand = require("./debug")("jsftp:command");
-const dbgResponse = require("./debug")("jsftp:response");
+const debug = require("debug")("jsftp:general");
+const dbgCommand = require("debug")("jsftp:command");
+const dbgResponse = require("debug")("jsftp:response");
 
 const FTP_HOST = "localhost";
 const FTP_PORT = 21;

@@ -1,6 +1,5 @@
 'use strict'
 
-const jsftp = require('./jsftp')
 const fs = require('fs');
 const fsPromises = fs.promises;
 const homedir = require('os').homedir().replace(/\\/g, '\/');

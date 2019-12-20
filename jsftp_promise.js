@@ -2,24 +2,12 @@
 
 const jsftp = require('./jsftp')
 const fs = require('fs');
-const debug = require('debug')('ftp')
 const fsPromises = fs.promises;
 const homedir = require('os').homedir().replace(/\\/g, '\/');
 var FtpObj = undefined
 var localList = {}
 
 const ftp = {
-  init: function() {
-    debug('Ftp Object initialization')
-
-    FtpObj = new jsftp({
-      host: 'ftp.fasmedo.com',
-      user: 'fasmedo',
-      pass: 'faspro',
-      debugMode: true,
-      useList: true
-    })
-  },
   listAll: function(args) {
     return new Promise ((resolve, reject) => {
       FtpObj.ls(args[0], (err, res) => {

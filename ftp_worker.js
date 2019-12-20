@@ -27,23 +27,16 @@ const actions = {
 	next: function() {
 		if (queue.length > 0) {
 			let task = queue.pop();
-			//let params = task.parameters
-			//timeoutHandler = params[params.length - 2]
-			//lastRequestTime = Date.now()
 
 			ftp[task.name](task.parameters)
 				.then(res => {
-					//this.handleResponse()
 					this.next()
 					return "finish";
 				})
 				.catch(err => {
-					//this.handleResponse()
 					this.next()	
 				})				
-			//this.checkTimeout()
 		} else {
-			//console.log("queue is empty")
 			setTimeout(() => {
 				this.next()
 			}, 2000)

@@ -34,14 +34,17 @@ FtpFileHandler.prototype.createWorker = function() {
 	}, this.logger)	
 }
 
-FtpFileHandler.prototype.listAll = function(path, array) {
+FtpFileHandler.prototype.list = function(path) {
 	return new Promise((resolve, reject) => {			
 		this.Worker.push({
-			name: "listAll",
-			parameters: [
+			name: "list",
+			parameters: {
 				path, 
-				() => {	reject('error')	}, 
-				(res) => { resolve(res); }],
+				failed: () => {	reject('error')	}, 
+				succeed: (res) => {
+					console.log(res)
+					resolve(res); 
+				}},
 			description: `list ${path}`
 		});							
 	})

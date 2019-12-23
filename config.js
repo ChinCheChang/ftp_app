@@ -23,7 +23,7 @@ const config = {
 			new transports.File({ filename: `./log/${moment(new Date()).format('YYYY-MM-DDTHH-mm-ss')}.log` })
 		],
 		format: combine(
-			label({ label: 'FTP APP' }),
+			label({ label: 'FTP log' }),
 			timestamp(),
 			prettyPrint()
 		)

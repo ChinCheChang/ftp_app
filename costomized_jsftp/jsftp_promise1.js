@@ -5,20 +5,28 @@ const fs = require('fs');
 // const homedir = require('os').homedir().replace(/\\/g, '\/');
 // var localList = {}
 
-function Promise_ftp(FtpObj) {
-    this.FtpObj = FtpObj    
+function Promise_ftp(FtpObj, logger) {
+		this.FtpObj = FtpObj
+		this.logger = logger    
 }
 
 Promise_ftp.prototype.listAll = function(args) {
 	return new Promise ((resolve, reject) => {
 		this.FtpObj.ls(args[0], (err, res) => {
 			if (err) {
-				console.log("FTP: List Ftp file name error", err)
+				this.logger.log({
+					level: 'error',
+					message: `[listAll] failed ${args[0]}`
+				})
 				reject(err)
+			} else {
+				this.logger.log({					
+					message: `[listAll] succeed ${args[0]}`,
+					level: 'info'
+				})				
+				args[args.length - 1](res);
+				resolve(res)
 			}
-
-			args[args.length - 1](res);
-			resolve(res)
 		})
 	})        
 }

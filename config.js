@@ -1,6 +1,7 @@
 'use strict'
 
-const winston = require('winston')
+const { format, transports } = require('winston');
+const { combine, timestamp, prettyPrint, label } = format;
 
 const config = {
 	mode: 'dev',
@@ -17,9 +18,14 @@ const config = {
 	},
 	log: {
 		transports: [
-			new winston.transports.Console(),
-			new winston.transports.File({ filename: './log/combined.log' })
-		]
+			new transports.Console(),
+			new transports.File({ filename: './log/combined.log' })
+		],
+		format: combine(
+			label({ label: 'FTP APP' }),
+			timestamp(),
+			prettyPrint()
+		)
 	}
 }
 

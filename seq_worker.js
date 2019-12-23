@@ -1,5 +1,12 @@
 'use strict'
 
+/**
+ * 
+ * @param {*} tasksHander 
+ * @param {*} replaceLogic 
+ * @param {*} logger 
+ * TODO: Add timeout mechanism
+ */
 function Worker(tasksHander, replaceLogic, logger) {
 	this.working = false 
 	this.queue = []

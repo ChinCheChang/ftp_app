@@ -1,10 +1,11 @@
 'use strict'
 
-function Worker(tasksHander, replaceLogic) {
+function Worker(tasksHander, replaceLogic, logger) {
 	this.working = false 
 	this.queue = []
 	this.tasksHander = tasksHander
 	this.replaceLogic = replaceLogic
+	this.logger = logger
 }
 
 Worker.prototype.start = function() {
@@ -15,6 +16,8 @@ Worker.prototype.start = function() {
 Worker.prototype.next = function() {
 	if (this.queue.length > 0) {
 		let task = this.queue.pop();
+
+		if ( this.logger ) { this.logger.info(`Start ${task.description}`) }
 
 		this.tasksHander[task.name](task.parameters)
 			.then(res => {

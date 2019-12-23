@@ -13,10 +13,10 @@ Worker.prototype.start = function() {
 }
 
 Worker.prototype.next = function() {
-	if (queue.length > 0) {
-		let task = queue.pop();
+	if (this.queue.length > 0) {
+		let task = this.queue.pop();
 
-		tasksHander[task.name](task.parameters)
+		this.tasksHander[task.name](task.parameters)
 			.then(res => {
 				this.next()
 				return "finish";
@@ -38,8 +38,8 @@ Worker.prototype.cleanQueue = function() {
 }
 
 Worker.prototype.push = function(task) {	
-	if ( replaceLogic ) this.replaceTaskInQueue(task) 
-	queue.push(task)
+	if ( this.replaceLogic ) this.replaceTaskInQueue(task) 
+	this.queue.push(task)
 	if ( !this.working ) this.start()
 }
 

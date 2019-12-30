@@ -4,8 +4,10 @@ const winston = require('winston')
 const custJsftp = require('./costomized_jsftp/cust_jsftp')
 const Seq_worker = require('./seq_worker')
 const jsftpPromise = require('./costomized_jsftp/jsftp_promise1')
+const moment = require('moment')
 
 function FtpFileHandler(cfg = {}) {
+	this.btName = cfg.btName || config.btName
 	this.createLogger(cfg.log || config.log)
 	this.createJsftp(cfg.ftp || config.ftp)
 	this.createNedb('cameraFiles', cfg.nedb || config.nedb)	
@@ -24,7 +26,7 @@ FtpFileHandler.prototype.createJsftp = function(cfg) {
 FtpFileHandler.prototype.createNedb = function(dbName, cfg) {
 	this.logger.info('init NeDB')
 	this.db = {}
-	this.db[dbName] = new Datastore(cfg)
+	this.db = new Datastore(cfg)
 }
 
 FtpFileHandler.prototype.createWorker = function() {
@@ -34,20 +36,43 @@ FtpFileHandler.prototype.createWorker = function() {
 	}, this.logger)	
 }
 
-FtpFileHandler.prototype.list = function(path) {
-	return new Promise((resolve, reject) => {			
-		this.Worker.push({
-			name: "list",
-			parameters: {
-				path, 
-				failed: () => {	reject('error')	}, 
-				succeed: (res) => {
-					console.log(res)
-					resolve(res); 
-				}},
-			description: `list ${path}`
-		});							
+FtpFileHandler.prototype.list = function(path) {		
+	this.Worker.push({
+		name: "list",
+		parameters: {
+			path, 
+			failed: (error) => {	console.log( error ) }, 
+			succeed: (res) => {
+				this.mediaCreater(res, path).map((value) => {
+					this.db.insert(value)
+				})
+			}},
+		description: `list ${path}`
+	});							
+}
+
+FtpFileHandler.prototype.mediaCreater = function(mediaArray, remotePath, localPath) {
+	let formatHandler = (filename) => {
+		return filename.split('.')[1]
+	}
+
+	return mediaArray.map((value) => {
+		return {
+			name: value.name,
+			remotePath: remotePath,
+			localPath: localPath,
+			device: this.btName,
+			format: formatHandler(value.name),
+			ctime: moment(new Date()).format('YYYY-MM-DDTHH-mm-ss'),
+			mtime: value.time,
+			size: value.size,
+			patientInfo: {}
+		}
 	})
 }
+
+// FtpFileHandler.prototype.get = function(remotepath, localpath) {
+// 	return
+// }
 
 module.exports = FtpFileHandler

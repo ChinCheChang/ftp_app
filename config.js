@@ -5,6 +5,7 @@ const { format, transports } = require('winston');
 const { combine, timestamp, prettyPrint, label } = format;
 
 const config = {
+	btName: 'MediCam_DFD26A',
 	mode: 'dev',
 	ftp: {
 		host: 'ftp.fasmedo.com',
@@ -15,7 +16,7 @@ const config = {
 	},
 	nedb: {
 		filename: './db/test',
-    autoload: true
+    	autoload: true
 	},
 	log: {
 		transports: [

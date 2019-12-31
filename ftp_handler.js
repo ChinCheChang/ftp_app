@@ -36,15 +36,50 @@ FtpFileHandler.prototype.createWorker = function() {
 	}, this.logger)	
 }
 
+FtpFileHandler.prototype.mediaCreater = function( media, remotePath, localPath = null ) {
+	let formatHandler = (filename) => {	return filename.split('.')[1]	}
+
+	return {
+		name: media.name,
+		remotePath: remotePath,
+		localPath: localPath,
+		device: this.btName,
+		format: formatHandler(media.name),
+		ctime: moment(new Date()).format('YYYY-MM-DDTHH-mm-ss'),
+		mtime: media.time,
+		size: media.size,
+		patientInfo: {}
+	}
+}
+
 FtpFileHandler.prototype.list = function(path) {		
+	// Check media exist or not by file name
+	let checkMedia = (mediaName) => {
+		return new Promise((resolve, reject) => {
+			this.db.find({ name: mediaName }, function (err, docs) {
+				if (err) { reject(err) }
+				docs.length > 0 ? resolve(true) : resolve(false)
+			})
+		})
+	}
+	
 	this.Worker.push({
 		name: "list",
 		parameters: {
 			path, 
 			failed: (error) => {	console.log( error ) }, 
 			succeed: (res) => {
-				this.mediaCreater(res, path).map((value) => {
-					this.db.insert(value)
+				res.map((value) => {
+					checkMedia(value.name)
+						.then((res) => {
+							if (!res) this.db.insert(this.mediaCreater(value, path))
+						})
+						.catch(err => {
+							this.logger.log({
+							level: 'error',
+							message: `db find error name: ${err}`
+				})
+						})				
 				})
 			}},
 		description: `list ${path}`

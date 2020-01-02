@@ -1,16 +1,18 @@
 const Datastore = require('nedb')
 const config = require('./config')
 const winston = require('winston')
-const custJsftp = require('./costomized_jsftp/cust_jsftp')
+const custJsftp = require('./customized_jsftp/cust_jsftp')
 const Seq_worker = require('./seq_worker')
-const jsftpPromise = require('./costomized_jsftp/jsftp_promise')
-const moment = require('moment')
+const jsftpPromise = require('./customized_jsftp/jsftp_promise')
+const Ftp_handler = require('./handlers/ftp_handler')
+
 
 function FtpFileHandler(cfg = {}) {
 	this.btName = cfg.btName || config.btName
 	this.createLogger(cfg.log || config.log)
 	this.createJsftp(cfg.ftp || config.ftp)
-	this.createNedb('cameraFiles', cfg.nedb || config.nedb)	
+	this.createNedb(cfg.nedb || config.nedb)
+	this.createHandler()	
 	this.createWorker()
 }
 
@@ -23,10 +25,15 @@ FtpFileHandler.prototype.createJsftp = function(cfg) {
 	this.FTP = new jsftpPromise(custJsftp(cfg), this.logger)
 }
 
-FtpFileHandler.prototype.createNedb = function(dbName, cfg) {
+FtpFileHandler.prototype.createNedb = function(cfg) {
 	this.logger.info('init NeDB')
 	this.db = {}
 	this.db = new Datastore(cfg)
+}
+
+FtpFileHandler.prototype.createHandler = function() {
+	this.logger.info('init ftp_handler')
+	this.Ftp_handler = new Ftp_handler(this.db, this.logger)
 }
 
 FtpFileHandler.prototype.createWorker = function() {
@@ -36,53 +43,7 @@ FtpFileHandler.prototype.createWorker = function() {
 	}, this.logger)	
 }
 
-FtpFileHandler.prototype.mediaCreater = function( media, remotePath, localPath = null ) {
-	let formatHandler = (filename) => {	return filename.split('.')[1]	}
-
-	return {
-		name: media.name,
-		remotePath: remotePath,
-		localPath: localPath,
-		device: this.btName,
-		format: formatHandler(media.name),
-		ctime: moment(new Date()).format('YYYY-MM-DDTHH-mm-ss'),
-		mtime: media.time,
-		size: media.size,
-		patientInfo: {}
-	}
-}
-
 FtpFileHandler.prototype.list = function(path) {		
-	// Check media exist or not by file name
-	let checkMedia = (mediaName) => {
-		return new Promise((resolve, reject) => {
-			this.db.find({ name: mediaName }, function (err, docs) {
-				if (err) { reject(err) }
-				docs.length > 0 ? resolve(true) : resolve(false)
-			})
-		})
-	}
-	
-	let afterSucceed = (res) => {
-				res.map((value) => {
-					checkMedia(value.name)
-						.then((res) => {
-					if (!res) {
-						this.db.insert(this.mediaCreater(value, path), function(err, newDoc) {
-							if (err) throw err
-							console.log('Add new file', newDoc)
-						})
-					}
-				})
-						.catch(err => {
-							this.logger.log({
-							level: 'error',
-							message: `db find error name: ${err}`
-				})
-						})				
-				})
-}
-
 	let afterFailed = (error) => {	console.log( error ) }
 
 	this.Worker.push({
@@ -90,7 +51,7 @@ FtpFileHandler.prototype.list = function(path) {
 		parameters: {
 			path, 
 			failed: afterFailed, 
-			succeed: afterSucceed
+			succeed: (res) => { this.Ftp_handler.listSucceed(res, path) }
 		},
 		description: `list ${path}`
 	});							

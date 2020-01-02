@@ -63,17 +63,17 @@ FtpFileHandler.prototype.list = function(path) {
 		})
 	}
 	
-	this.Worker.push({
-		name: "list",
-		parameters: {
-			path, 
-			failed: (error) => {	console.log( error ) }, 
-			succeed: (res) => {
+	let afterSucceed = (res) => {
 				res.map((value) => {
 					checkMedia(value.name)
 						.then((res) => {
-							if (!res) this.db.insert(this.mediaCreater(value, path))
+					if (!res) {
+						this.db.insert(this.mediaCreater(value, path), function(err, newDoc) {
+							if (err) throw err
+							console.log('Add new file', newDoc)
 						})
+					}
+				})
 						.catch(err => {
 							this.logger.log({
 							level: 'error',
@@ -81,29 +81,19 @@ FtpFileHandler.prototype.list = function(path) {
 				})
 						})				
 				})
-			}},
-		description: `list ${path}`
-	});							
 }
 
-FtpFileHandler.prototype.mediaCreater = function(mediaArray, remotePath, localPath) {
-	let formatHandler = (filename) => {
-		return filename.split('.')[1]
-	}
+	let afterFailed = (error) => {	console.log( error ) }
 
-	return mediaArray.map((value) => {
-		return {
-			name: value.name,
-			remotePath: remotePath,
-			localPath: localPath,
-			device: this.btName,
-			format: formatHandler(value.name),
-			ctime: moment(new Date()).format('YYYY-MM-DDTHH-mm-ss'),
-			mtime: value.time,
-			size: value.size,
-			patientInfo: {}
-		}
-	})
+	this.Worker.push({
+		name: "list",
+		parameters: {
+			path, 
+			failed: afterFailed, 
+			succeed: afterSucceed
+		},
+		description: `list ${path}`
+	});							
 }
 
 // FtpFileHandler.prototype.get = function(remotepath, localpath) {

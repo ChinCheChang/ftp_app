@@ -3,7 +3,7 @@ const config = require('./config')
 const winston = require('winston')
 const custJsftp = require('./costomized_jsftp/cust_jsftp')
 const Seq_worker = require('./seq_worker')
-const jsftpPromise = require('./costomized_jsftp/jsftp_promise1')
+const jsftpPromise = require('./costomized_jsftp/jsftp_promise')
 const moment = require('moment')
 
 function FtpFileHandler(cfg = {}) {

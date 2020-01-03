@@ -7,26 +7,6 @@ function Ftp_handler(db, logger) {
 	this.logger = logger
 }
 
-Ftp_handler.prototype.listSucceed = function(res, path) {
-	res.map((value) => {
-		this.checkMedia(value.name)
-			.then((res) => {
-				if (!res) {
-					this.db.insert(this.mediaCreater(value, path), function(err, newDoc) {
-						if (err) throw err
-						console.log('Add new file', newDoc)
-					})
-				}
-			})
-			.catch(err => {
-				this.logger.log({
-					level: 'error',
-					message: `db find error name: ${err}`
-				})
-			})				
-	})
-}
-
 Ftp_handler.prototype.mediaCreater = function( media, remotePath, localPath = null ) {
 	let formatHandler = (filename) => {	return filename.split('.')[1]	}
 
@@ -51,6 +31,37 @@ Ftp_handler.prototype.checkMedia = function(mediaName) {
 		})
 	})
 }
+
+Ftp_handler.prototype.listSucceed = function(res, path) {
+	res.map((value) => {
+		this.checkMedia(value.name)
+			.then((res) => {
+				if (!res) {
+					this.db.insert(this.mediaCreater(value, path), function(err, newDoc) {
+						if (err) throw err
+						console.log('Add new file', newDoc)
+					})
+				}
+			})
+			.catch(err => {
+				this.logger.log({
+					level: 'error',
+					message: `db find error name: ${err}`
+				})
+			})				
+	})
+}
+
+Ftp_handler.prototype.listFailed = function(err) {
+	this.logger.log({
+		level: 'error',
+		message: `ftp list error: ${err}`
+	})
+}
+
+
+
+
 
 
 

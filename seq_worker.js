@@ -47,7 +47,8 @@ Worker.prototype.cleanQueue = function() {
 	this.queue = []
 }
 
-Worker.prototype.push = function(task) {	
+Worker.prototype.push = function(task) {
+	//It would excute two times if one task is already excute
 	if ( this.replaceLogic ) this.replaceTaskInQueue(task) 
 	this.queue.push(task)
 	if ( !this.working ) this.start()
@@ -55,7 +56,7 @@ Worker.prototype.push = function(task) {
 
 Worker.prototype.replaceTaskInQueue = function(task) {
 	let index = this.queue.findIndex((value) => {
-		return replaceLogic(value, task)
+		return this.replaceLogic(value, task)
 	})
 	if ( index !== -1 ) this.queue.splice(index, 1) 
 }

@@ -16,13 +16,13 @@ Promise_ftp.prototype.list = function({ path, failed, succeed }) {
 			if (err) {
 				this.logger.log({
 					level: 'error',
-					message: `[listAll] failed ${path}: ${err}`
+					message: `[list] failed ${path}: ${err}`
 				})
 				failed(err)
 				reject(err)
 			} else {
 				this.logger.log({					
-					message: `[listAll] succeed ${path}`,
+					message: `[list] succeed ${path}`,
 					level: 'info'
 				})				
 				succeed(res);

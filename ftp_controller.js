@@ -44,13 +44,11 @@ FtpFileHandler.prototype.createWorker = function() {
 }
 
 FtpFileHandler.prototype.list = function(path) {		
-	let afterFailed = (error) => {	console.log( error ) }
-
 	this.Worker.push({
 		name: "list",
 		parameters: {
 			path, 
-			failed: afterFailed, 
+			failed: (res) => { this.Ftp_handler.listFailed(res, path) }, 
 			succeed: (res) => { this.Ftp_handler.listSucceed(res, path) }
 		},
 		description: `list ${path}`

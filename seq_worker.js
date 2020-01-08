@@ -5,14 +5,15 @@
  * @param {*} tasksHander 
  * @param {*} replaceLogic 
  * @param {*} logger 
- * TODO: Add timeout mechanism
  */
-function Worker(tasksHander, replaceLogic, logger) {
+
+function Worker(tasksHander, replaceLogic, logger, retry) {
 	this.working = false 
 	this.queue = []
 	this.tasksHander = tasksHander
 	this.replaceLogic = replaceLogic
 	this.logger = logger
+	this.retryCounter = 0
 }
 
 Worker.prototype.start = function() {
@@ -22,16 +23,23 @@ Worker.prototype.start = function() {
 
 Worker.prototype.next = function() {
 	if (this.queue.length > 0) {
-		let task = this.queue.pop();
-
+		let task = this.queue[0];
 		if ( this.logger ) { this.logger.info(`Start ${task.description}`) }
 
 		this.tasksHander[task.name](task.parameters)
 			.then(res => {
+				this.queue.pop()
+				this.retryCounter = 0
 				this.next()
 				return "finish";
 			})
-			.catch(err => {
+			.catch(err => {				
+				if (this.retryCounter < retry) {
+					this.retryCounter++
+				} else {
+					this.queue.pop()
+					this.retryCounter = 0
+				}
 				this.next()	
 			})				
 	} else {

@@ -8,7 +8,10 @@ const App = new FtpController({
     autoload: true
 	}
 })
-App.list('./jpg')
+for (let i=0; i < 100; i++) {
+  App.list('./jpg')
+}
+
 //App.get('./jpg')
 // App.FTP.get('./jpg/award_fm100.png', './award_fm100.png',  (err) => {
 //     if (err) {

@@ -40,7 +40,7 @@ FtpFileHandler.prototype.createWorker = function() {
 	this.logger.info('init Worker')
 	this.Worker =  new Seq_worker( this.FTP, (taskInQueue, task) => {
 		return taskInQueue.name === task.name && taskInQueue.parameters[0] == task.parameters[0]
-	}, this.logger)	
+	}, { logger: this.logger, retry: 1})	
 }
 
 FtpFileHandler.prototype.list = function(path) {		

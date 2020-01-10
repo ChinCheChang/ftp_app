@@ -4,15 +4,16 @@
  * 
  * @param {*} tasksHander 
  * @param {*} replaceLogic 
- * @param {*} logger 
+ * @param {*} options
  */
-
-function Worker(tasksHander, replaceLogic, logger, retry) {
+function Worker(tasksHander, replaceLogic, options) {
 	this.working = false 
 	this.queue = []
 	this.tasksHander = tasksHander
 	this.replaceLogic = replaceLogic
-	this.logger = logger
+	this.logger = options.logger | null
+	this.retry = options.retry | 3
+	this.retryInterval = options.retryInterval | 0
 	this.retryCounter = 0
 }
 
@@ -34,13 +35,16 @@ Worker.prototype.next = function() {
 				return "finish";
 			})
 			.catch(err => {				
-				if (this.retryCounter < retry) {
+				if (this.retryCounter < this.retry) {
 					this.retryCounter++
 				} else {
 					this.queue.pop()
 					this.retryCounter = 0
 				}
-				this.next()	
+				setTimeout(() => {
+					this.next()
+				}, this.retryInterval)
+					
 			})				
 	} else {
 		this.pause()

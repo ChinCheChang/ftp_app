@@ -34,17 +34,15 @@ Worker.prototype.next = function() {
 				this.next()
 				return "finish";
 			})
-			.catch(err => {				
-				if (this.retryCounter < this.retry) {
-					this.retryCounter++
-				} else {
+			.catch(err => {		
+				this.retryCounter++
+				if (!(this.retryCounter < this.retry)) {
 					this.queue.pop()
 					this.retryCounter = 0
 				}
 				setTimeout(() => {
 					this.next()
-				}, this.retryInterval)
-					
+				}, this.retryInterval)					
 			})				
 	} else {
 		this.pause()
